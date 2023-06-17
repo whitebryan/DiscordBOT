@@ -1,36 +1,71 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from WorldToBuildAPI import WorldToBuildAPIClient, wtbRequestType
 
-class DiscordBotClient(discord.ext.commands.Bot):
-
+class PythonBotClient(discord.ext.commands.Bot):
+    wtbAPIClient = WorldToBuildAPIClient()
+    
     #Initalize as discord bot as well as set commands or listeners
     def __init__(self, command_prefix, clientIntents):
             super().__init__(command_prefix, intents=clientIntents)
 
+            ##///////Commands///////##
             #Simple command that could be used for help with other commands
-            @self.hybrid_command(name="serverhelp", pass_context=True)
+            @self.hybrid_command(name="serverhelp", description = "Get information about available commands", pass_context=True)
             async def serverHelp(ctx):
                 if ctx.author != self.user:
-                    await ctx.channel.send("There are currently no commands availible.")
+                    await ctx.reply("There are currently no commands availible.")
 
             #Example for command only useable by certain roles
-            @self.hybrid_command(name="roletest", pass_context=True)
+            @self.hybrid_command(name="roletest", description = "Test Admin ability", pass_context=True)
             async def adminAbility(ctx, name):
                 roleNeeded = discord.utils.get(ctx.guild.roles, id=1119438872535896139)
                 if roleNeeded in ctx.author.roles:
-                    await ctx.channel.send("You have the correct role for this command")
+                    await ctx.reply("You have the correct role for this command")
                 else:
-                    await ctx.channel.send("You do not have the correct role for this command")
+                    await ctx.reply("You do not have the correct role for this command")
+
+            ##Grab info from the World To Build API
+            @self.hybrid_command(name="world_to_build_info", description = "Grab information about a player, club, or world", pass_context=True)
+            async def getWTBInfo(ctx, type : wtbRequestType, id : int):
+                response = self.wtbAPIClient.getInfoByID(type, id)
+                json = response.json()
+                messageText = None
+                newStatusText = None
+
+                match type:
+                    case wtbRequestType.Player:
+                        if json["Success"] == False:
+                            messageText = "Request failed please input a valid Player ID."
+                        else:
+                            messageText = f"The Player {json['Data']['Username']} was last online on {json['Data']['LastOnline']}"
+                            newStatusText = f"Check out {json['Data']['Username']}!"
+                    case wtbRequestType.Club:
+                        if json["Success"] == False:
+                            messageText = "Request failed please input a valid Club ID."
+                        else:
+                            messageText = f"The Club {json['Data']['Name']} is : \"{json['Data']['About']}\""
+                            newStatusText = f"Check out {json['Data']['Name']}!"
+                    case wtbRequestType.World:
+                        if json["Success"] == False:
+                            messageText = "Request failed please input a valid World ID."
+                        else:
+                            messageText = f"The World {json['Data']['Name']} is : \"{json['Data']['About']}\""
+                            newStatusText = f"Check out {json['Data']['Name']}!"
+
+                if newStatusText is not None:
+                    await self.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=newStatusText))
+                await ctx.reply(messageText)
+            ##////////////////////##
+
 
             #Message listener
             @self.listen("on_message")
             async def on_message(message):
                 if message.author == self.user:
                     return
-
-                if message.content.startswith('$Hello'):
-                    await message.channel.send('Hello')
+                #Heres where you could add automod checking for words or links to bad places
             
             #Set to only be useable by my account atm, syncs commands so they show up as slash commands
             @self.command(name="SyncCommands", pass_context=True)
@@ -42,6 +77,7 @@ class DiscordBotClient(discord.ext.commands.Bot):
     #Command for when the bot is done loading
     async def on_ready(self):
         print(f'We have logged in as {self.user}')
+        await self.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="Unreal Engine"))
 
     #Called when any reaction is added
     #Here it is simply used to add a role if a user reacts with a certain emoji based off the emoji name

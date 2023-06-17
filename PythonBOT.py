@@ -1,4 +1,4 @@
-from DiscordBotClient import DiscordBotClient
+from PythonBotClient import PythonBotClient
 import discord
 from discord.ext import commands
 
@@ -8,7 +8,7 @@ key = keyFile.readline()
 #Checking for discord API key
 if len(key) > 0:
     intents = discord.Intents.all()
-    apiClient = DiscordBotClient("!", intents)
+    apiClient = PythonBotClient("!", intents)
 
     #read this from "key.txt" later
     apiClient.run(key)
