@@ -28,7 +28,15 @@ class PythonBotClient(discord.ext.commands.Bot):
 
             ##Grab info from the World To Build API
             @self.hybrid_command(name="world_to_build_info", description = "Grab information about a player, club, or world", pass_context=True)
-            async def getWTBInfo(ctx, type : wtbRequestType, id : int):
+            async def getWTBInfo(ctx, type : wtbRequestType, id : app_commands.Range[int, 1]):
+                """world_to_build_info
+                Parameters
+                -----------
+                type: wtbRequestType
+                    The type of information you are requesting
+                id: int
+                    The ID of the object you wish to get information about
+                """                
                 response = self.wtbAPIClient.getInfoByID(type, id)
                 json = response.json()
                 messageText = None

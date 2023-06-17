@@ -20,7 +20,7 @@ class WorldToBuildAPIClient():
                 url = 'https://api.worldtobuild.com/WebService/Club/FetchClubDataById?ClubID='+str(ID)
             case wtbRequestType.World:
                 url = 'https://api.worldtobuild.com/WebService/World/FetchWorldDataById?WorldID='+str(ID)
-        
+                       
         url = url + str(ID)
 
         return requests.get(url)
