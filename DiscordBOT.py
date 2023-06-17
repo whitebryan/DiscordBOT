@@ -1,4 +1,4 @@
-from WorldToBuildAPI import WorldTBAPI
+from DiscordBotClient import DiscordBotClient
 import discord
 from discord.ext import commands
 
@@ -8,7 +8,7 @@ key = keyFile.readline()
 #Checking for discord API key
 if len(key) > 0:
     intents = discord.Intents.all()
-    apiClient = WorldTBAPI("!", intents)
+    apiClient = DiscordBotClient("!", intents)
 
     #read this from "key.txt" later
     apiClient.run(key)

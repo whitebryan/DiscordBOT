@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-class WorldTBAPI(discord.ext.commands.Bot):
+class DiscordBotClient(discord.ext.commands.Bot):
 
     #Initalize as discord bot as well as set commands or listeners
     def __init__(self, command_prefix, clientIntents):
